@@ -5,16 +5,30 @@ import json
 
 
 def intro():
-    print("\n===================================")
-    print("_TELEGRAM CHANNEL SNOWBALL SAMPLER_")
-    print("Created by Tom Jarvis. Use for good")
-    print("===================================")
+    printC(r''' 
+              __________-------____                 ____-------__________
+          \------____-------___--__---------__--___-------____------/
+           \//////// / / / / / \   _-------_   / \ \ \ \ \ \\\\\\\\/
+             \////-/-/------/_/_| /___   ___\ |_\_\------\-\-\\\\/
+               --//// / /  /  //|| (O)\ /(O) ||\\  \  \ \ \\\\--
+                    ---__/  // /| \_  /V\  _/ |\ \\  \__---
+                         -//  / /\_ busting _/\ \  \\-
+                           \_/_/ /\bad guys!/\ \_\_/
+                               ----\   |   /----
+                                    | -|- |
+                                   /   |   \
+                                   ---- \___|''', Fore.LIGHTMAGENTA_EX)
+    print("                     ===================================")
+    print("                     _TELEGRAM CHANNEL SNOWBALL SAMPLER_")
+    print("                     Created by Tom Jarvis. Use for good")
+    print("                     ===================================\n")
 
-    printC("            ===Слава===", Fore.BLUE)
-    printC("            ==Україні==", Fore.YELLOW)
-    print('\n')
-    print('Warning this code WILL take ages to complete because it is exponential with each iteration')
-    print('Four or more iterations can theoretically take weeks or more')
+    printC(
+        '-- Warning: Due to exponential growth, execution time can be extensive. \n   More than three iterations may take weeks. Apply appropriate filtering.\n'
+        '-- Use a sockpuppet account for Telegram research.\n-- Note: Tool lacks content filters. Be aware of potential illegal content.',
+        Fore.YELLOW)
+
+
 
 def printC(string, colour):
     '''Print coloured and then reset: The "colour" variable should be written as "Fore.GREEN" (or other colour) as it

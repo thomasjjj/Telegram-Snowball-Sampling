@@ -72,3 +72,8 @@ The output CSV file contains columns for each iteration, with each row represent
 
 ## Disclaimer
 This tool is for educational and research purposes only. Please ensure that you comply with Telegram's terms of service and respect privacy and ethical guidelines when using this tool.
+
+TODO
+- [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early
+- [ ] Add more detailed counts into the terminal feedback
+- [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required) 
