@@ -11,7 +11,7 @@ async def process_channels(client, initial_channels, iterations, min_mentions=5,
 
     # initial variables defined
     processed_channels, channels_to_process = set(), deque(initial_channels)
-    iteration_results, iteration_durations, mention_counter, total_messages_processed = [], [], {}, 0
+    iteration_results, iteration_durations, mention_counter, total_messages_processed, channel_counts = [], [], {}, 0, []
 
     for iteration in range(iterations):
         iteration_start_time = time.time()
@@ -65,17 +65,17 @@ async def process_channels(client, initial_channels, iterations, min_mentions=5,
                                 break
 
                     except ChannelPrivateError:
-                        print(f"Cannot access private channel: {channel}")
+                        printC(f"Cannot access private channel: {channel}", Fore.RED)
                         continue  # Skip further processing of this channel and continue with the next one
 
                     except Exception as ex:
-                        print(f"An unexpected error occurred while processing channel {channel}: {ex}")
+                        printC(f"An unexpected error occurred while processing channel {channel}: {ex}", Fore.RED)
             except ChannelPrivateError:
-                print(f"Cannot access private channel or banned from channel: {channel}")
+                printC(f"Cannot access private channel or banned from channel: {channel}", Fore.RED)
                 continue  # Skip further processing of this channel and move to the next one
 
             except Exception as ex:
-                print(f"An unexpected error occurred while processing channel {channel}: {ex}")
+                printC(f"An unexpected error occurred while processing channel {channel}: {ex}", Fore.RED)
 
         iteration_data = [(cid, current_iteration_channel_names[cid]) for cid in current_iteration_channels]
         iteration_results.append(iteration_data)
@@ -88,7 +88,10 @@ async def process_channels(client, initial_channels, iterations, min_mentions=5,
         iteration_duration = iteration_end_time - iteration_start_time
         iteration_durations.append(iteration_duration)
 
-    return iteration_results, iteration_durations
+        # Store the number of channels for this iteration
+        channel_counts.append(len(current_iteration_channels))
+
+    return iteration_results, iteration_durations, channel_counts, total_messages_processed
 
 
 async def main():
@@ -114,7 +117,7 @@ async def main():
 
     start_time = time.time()
 
-    results, iteration_durations = await process_channels(client, initial_channels, iterations, min_mentions, max_posts)
+    results, iteration_durations, channel_counts, total_messages_processed = await process_channels(client, initial_channels, iterations, min_mentions, max_posts)
     await client.disconnect()
 
     print("Making CSV...")
@@ -148,21 +151,26 @@ async def main():
                 writer.writerow(row)
 
     except IOError as e:
-        print(f"IOError occurred: {e}")
+        printC(f"IOError occurred: {e}", Fore.RED)
         error_fix(results)
     except ValueError as e:
-        print(f"ValueError occurred: {e}")
+        printC(f"ValueError occurred: {e}", Fore.RED)
         error_fix(results)
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        printC(f"An unexpected error occurred: {e}", Fore.RED)
         error_fix(results)
 
     end_time = time.time()
     total_time = end_time - start_time
+    print(f'Total messages processed: {total_messages_processed}')
     # Print iteration durations
     for i, duration in enumerate(iteration_durations, 1):
         print(f"Iteration {i} time: {duration:.2f} seconds")
     print(f"Total execution time: {total_time} seconds")
+
+    # Print the number of channels per iteration
+    for i, count in enumerate(channel_counts, 1):
+        print(f"Number of channels in iteration {i}: {count}")
 
 if __name__ == '__main__':
     # Running the main function in an event loop
