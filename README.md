@@ -43,22 +43,6 @@ The Telegram Snowball Sampling Tool, while powerful, can potentially take severa
 - Telethon library.
 - A registered Telegram application (for API credentials).
 
-## Installation
-1. Clone this repository or download the source code.
-2. Install required Python packages:
-   ```bash
-   pip install telethon
-   ```
-3. Obtain your Telegram API credentials (API ID and API hash) from [Telegram's developer page](https://my.telegram.org/).
-
-## Usage
-1. Run the script using Python:
-   ```bash
-   python your_script_name.py
-   ```
-2. Follow the on-screen prompts to enter the initial channels, iteration depth, and other parameters.
-3. The results will be saved in a CSV file named `snowball_sampler_results.csv`.
-
 ## Configuration
 Edit the following parameters in the script as needed:
 - `iterations`: Number of iterations for the snowball sampling.
@@ -77,6 +61,7 @@ This tool is for educational and research purposes only. Please ensure that you 
 **List of manageable and fun TODOs:**
 - [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
 - [ ] Output to Gephi and other network analysis formats.
+- [ ] Edgelist creation
 - [ ] Add more detailed counts into the terminal feedback.
 - [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required).
 - [ ] Analysis of forward messages to assign a source language (useful for additional filtering).

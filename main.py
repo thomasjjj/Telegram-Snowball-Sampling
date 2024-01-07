@@ -153,9 +153,11 @@ async def main():
     except IOError as e:
         printC(f"IOError occurred: {e}", Fore.RED)
         error_fix(results)
+
     except ValueError as e:
         printC(f"ValueError occurred: {e}", Fore.RED)
         error_fix(results)
+
     except Exception as e:
         printC(f"An unexpected error occurred: {e}", Fore.RED)
         error_fix(results)
