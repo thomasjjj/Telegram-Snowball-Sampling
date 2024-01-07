@@ -69,16 +69,6 @@ Edit the following parameters in the script as needed:
 The output CSV file contains columns for each iteration, with each row representing a discovered channel. The format is as follows:
 - `Iteration 1_id, Iteration 1_channelname, Iteration 2_id, Iteration 2_channelname, ...`
 
-## License
-This project is open-sourced and available for modification and distribution under [specify the license, e.g., MIT License].
-
-## Contributions
-Contributions to this project are welcome. Please submit a pull request or open an issue for discussion.
 
 ## Disclaimer
 This tool is for educational and research purposes only. Please ensure that you comply with Telegram's terms of service and respect privacy and ethical guidelines when using this tool.
-
-## Contact
-For any inquiries or contributions, please contact the author:
-- Name: [Your Name]
-- Email: [Your Email]
