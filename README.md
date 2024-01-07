@@ -73,7 +73,19 @@ The output CSV file contains columns for each iteration, with each row represent
 ## Disclaimer
 This tool is for educational and research purposes only. Please ensure that you comply with Telegram's terms of service and respect privacy and ethical guidelines when using this tool.
 
-TODO
-- [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early
-- [ ] Add more detailed counts into the terminal feedback
-- [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required) 
+# TODO
+**List of manageable and fun TODOs:**
+- [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
+- [ ] Output to Gephi and other network analysis formats.
+- [ ] Add more detailed counts into the terminal feedback.
+- [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required).
+- [ ] Analysis of forward messages to assign a source language (useful for additional filtering).
+- [ ] Statistical report of the process and findings (this may be useful for researchers identifying data biases).
+
+  - List of all channels searched.
+  - List of all forwards found (including those filtered out).
+  - Some form of search ranking within the pool of analysed channels.
+
+**Harder TODOs – All contributions and suggestions are welcome:** 
+- [ ] Add multi-API parallel processing to speed the process (will need more advanced queue assignment).
+- [ ] Live visualisation of growing network.
