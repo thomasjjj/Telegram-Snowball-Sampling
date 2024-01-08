@@ -54,6 +54,34 @@ Edit the following parameters in the script as needed:
 The output CSV file contains columns for each iteration, with each row representing a discovered channel. The format is as follows:
 - `Iteration 1_id, Iteration 1_channelname, Iteration 2_id, Iteration 2_channelname, ...`
 
+## Merging CSV Files
+
+This section of the script is designed to efficiently merge data from multiple CSV files located in the `results` folder and compile them into a single CSV file. This process helps in consolidating data from various runs into a unified dataset.
+
+### Functionality
+
+- **Directory Check and Creation**: The script first checks for the existence of a `merged` directory. If this directory doesn't exist, it is automatically created.
+- **Data Aggregation**: All CSV files within the `results` directory are processed. The script reads each file and extracts channel IDs and names, assuming these are located in alternating columns.
+- **Duplicate Removal and Data Merging**: The new data is appended to any existing data in the `merged_channels.csv` file within the `merged` folder. The script ensures that only unique entries are retained, effectively removing any duplicates.
+- **Appending New Data**: If `merged_channels.csv` already exists, the script appends new, unique data to it. If the file doesn't exist, it's created and populated with the merged data.
+
+### Usage
+
+Simply execute the script, and it will automatically process and merge the CSV files. The resulting file, `merged_channels.csv`, will be located in the `merged` directory.
+
+```python
+if __name__ == '__main__':
+    # Specify the folders and filename
+    results_folder = 'results'
+    merged_folder = 'merged'
+    merged_filename = 'merged_channels.csv'
+    
+    # Call the function to merge CSV files
+    merge_csv_files(results_folder, merged_folder, merged_filename)
+```
+
+This script provides a seamless way to combine data from multiple iterations or runs, making data analysis and management more streamlined.
+
 
 ## Disclaimer
 This tool is for educational and research purposes only. Please ensure that you comply with Telegram's terms of service and respect privacy and ethical guidelines when using this tool.
