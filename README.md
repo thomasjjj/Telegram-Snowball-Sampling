@@ -88,11 +88,11 @@ This tool is for educational and research purposes only. Please ensure that you 
 
 # TODO
 **List of manageable and fun TODOs:**
-- [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
+- [x] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
   - May want to make this optional depending on speed - but TG API rate limiting is the biggest bottleneck so impact expected to be minimal/negligible.
   - Consider alternative output formats.
 - [ ] Output to Gephi and other network analysis formats.
-- [ ] Edgelist creation
+- [x] Edgelist creation
 - [ ] Add more detailed counts into the terminal feedback.
 - [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required).
 - [ ] Analysis of forward messages to assign a source language (useful for additional filtering).
