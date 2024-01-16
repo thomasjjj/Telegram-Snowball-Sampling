@@ -1,13 +1,16 @@
-from telethon.tl.types import Channel
-from telethon.errors.rpcerrorlist import ChannelPrivateError
-from collections import deque
-import asyncio
-import csv
-import time
-import datetime
+from merge_csv_data import merge_csv_files
+from EdgeList import create_edge_list
 from utils import *
 
-async def process_channels(client, initial_channels, iterations, min_mentions=5, max_posts=None):
+from telethon.errors.rpcerrorlist import ChannelPrivateError
+from telethon.tl.types import Channel
+from collections import deque
+import datetime
+import asyncio
+
+
+
+async def process_channels(client, csv_file_path, initial_channels, iterations, min_mentions=5, max_posts=None):
 
     # initial variables defined
     processed_channels, channels_to_process = set(), deque(initial_channels)
@@ -40,25 +43,44 @@ async def process_channels(client, initial_channels, iterations, min_mentions=5,
                                 fwd_from = message.forward.chat if isinstance(message.forward.chat, Channel) else None
                                 if fwd_from:
                                     mention_counter[fwd_from.id] = mention_counter.get(fwd_from.id, 0) + 1
-                                    if mention_counter[fwd_from.id] >= min_mentions and fwd_from.id not in processed_channels:
+                                    if mention_counter[fwd_from.id] >= min_mentions:
+                                        # Write to CSV immediately upon finding a forward
                                         try:
+                                            # Get the forwarding channel's entity, name, and username
                                             fwd_from_entity = await client.get_entity(fwd_from.id)
                                             fwd_from_name = fwd_from_entity.title if fwd_from_entity else 'Unknown'
-                                        except ChannelPrivateError:
-                                            printC(f"Cannot access private channel: {fwd_from.id}", Fore.RED)
-                                            fwd_from_name = 'Private Channel'
+                                            fwd_from_username = fwd_from_entity.username if fwd_from_entity and hasattr(
+                                                fwd_from_entity, 'username') else 'Unknown'
+
+                                            # Get the current channel's entity, name, and username
+                                            channel_entity = await client.get_entity(channel)
+                                            channel_name = channel_entity.title if channel_entity else 'Unknown'
+                                            channel_username = channel_entity.username if channel_entity and hasattr(
+                                                channel_entity, 'username') else 'Unknown'
+
+                                            # Call the function to create the edge list
+                                            create_edge_list('EdgeList', 'Edge_List.csv', fwd_from.id, fwd_from_name,
+                                                             fwd_from_username, channel_entity.id, channel_name,
+                                                             channel_username)
+
+                                            # Write to CSV immediately upon finding a forward
+                                            with open(csv_file_path, 'a', newline='', encoding='utf-8') as file:
+                                                writer = csv.writer(file)
+                                                writer.writerow([fwd_from.id, fwd_from_name, fwd_from_username])
+                                                file.flush()
+
                                         except Exception as ex:
-                                            printC(f"An unexpected error occurred: {ex}", Fore.RED)
+                                            printC(f"An error occurred: {ex}", Fore.RED)
 
                                         current_iteration_channels.add(fwd_from.id)
                                         current_iteration_channel_names[fwd_from.id] = fwd_from_name
                                         queue = len(channels_to_process)
                                         completed = len(processed_channels)
 
-                                        print(f'Processed messages: [{total_messages_processed}]; channels: [{completed}] '
-                                              f' ¦ (iteration {iteration_number}/{iterations}) ¦ Left in queue: {queue} ¦ '
-                                              f'¦ Forward found in: {channel} - {channel_name} <<< '
-                                              f'{fwd_from.id} - {fwd_from_name} ')
+                                        print(f'Processed messages: [{total_messages_processed}]; channels: [{completed}]'
+                                              f' (iteration {iteration_number}/{iterations}) Left in queue: {queue} '
+                                              f'¦ Forward found in: {channel} = {channel_name} <<< '
+                                              f'{fwd_from.id} = {fwd_from_name} ')
 
                             channel_message_count += 1
                             if max_posts and channel_message_count >= max_posts:
@@ -117,10 +139,6 @@ async def main():
 
     start_time = time.time()
 
-    results, iteration_durations, channel_counts, total_messages_processed = await process_channels(client, initial_channels, iterations, min_mentions, max_posts)
-    await client.disconnect()
-
-    print("Making CSV...")
 
     try:
         # Writing results to CSV
@@ -135,45 +153,23 @@ async def main():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        with open(file_path, 'w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            header = [f'Iteration {i}_id, Iteration {i}_channelname' for i in range(len(results))]
-            writer.writerow([item for sublist in header for item in sublist.split(', ')])
-
-            max_length = max(len(iteration) for iteration in results)
-            for i in range(max_length):
-                row = []
-                for iteration in results:
-                    if i < len(iteration):
-                        row.extend(iteration[i])
-                    else:
-                        row.extend(['', ''])  # Empty strings for missing data
-                writer.writerow(row)
-
     except IOError as e:
         printC(f"IOError occurred: {e}", Fore.RED)
-        error_fix(results)
 
-    except ValueError as e:
-        printC(f"ValueError occurred: {e}", Fore.RED)
-        error_fix(results)
 
-    except Exception as e:
-        printC(f"An unexpected error occurred: {e}", Fore.RED)
-        error_fix(results)
+    results, iteration_durations, channel_counts, total_messages_processed = await process_channels(client, file_path, initial_channels, iterations, min_mentions, max_posts)
+    await client.disconnect()
 
-    end_time = time.time()
-    total_time = end_time - start_time
-    print(f'Total messages processed: {total_messages_processed}')
-    # Print iteration durations
-    for i, duration in enumerate(iteration_durations, 1):
-        print(f"Iteration {i} time: {duration:.2f} seconds")
-    print(f"Total execution time: {total_time} seconds")
 
-    # Print the number of channels per iteration
-    for i, count in enumerate(channel_counts, 1):
-        print(f"Number of channels in iteration {i}: {count}")
+    final_message(start_time, total_messages_processed, iteration_durations, channel_counts)
+
+
 
 if __name__ == '__main__':
     # Running the main function in an event loop
     asyncio.run(main())
+
+    # Run Merge CSV Script -- retains the output CSV of this run but appends data to merged CSV as well    print('Collating output files to master list in /merged folder...')
+    results_folder, merged_folder, merged_filename = 'results', 'merged', 'merged_channels.csv'
+    merge_csv_files(results_folder, merged_folder, merged_filename, "channels.csv")  # Call the function
+    print('Process Complete.')

@@ -2,6 +2,10 @@ from telethon import TelegramClient
 from colorama import Style, Fore  # import Style, Fore << both must be included even if Fore is removed by your IDE
 import os
 import json
+import csv
+import re
+import time
+
 
 
 def intro():
@@ -28,7 +32,25 @@ def intro():
         '-- Use a sockpuppet account for Telegram research.\n-- Note: Tool lacks content filters. Be aware of potential illegal content.',
         Fore.YELLOW)
 
+def final_message(start_time, total_messages_processed, iteration_durations, channel_counts):
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f'Total messages processed: {total_messages_processed}')
+    # Print iteration durations
+    for i, duration in enumerate(iteration_durations, 1):
+        print(f"Iteration {i} time: {duration:.2f} seconds")
+    print(f"Total execution time: {total_time} seconds")
 
+    # Print the number of channels per iteration
+    for i, count in enumerate(channel_counts, 1):
+        print(f"Number of channels in iteration {i}: {count}")
+
+def split_search_terms(input_string):
+    return [term.strip() for term in input_string.split(',')]
+
+def sanitize_filename(filename):
+    """Sanitize the filename by removing or replacing characters that may cause issues."""
+    return re.sub(r'[<>:"/\\|?*]', '', filename)
 
 def printC(string, colour):
     '''Print coloured and then reset: The "colour" variable should be written as "Fore.GREEN" (or other colour) as it
@@ -37,6 +59,18 @@ def printC(string, colour):
     from colorama import Style, Fore'''
 
     print(colour + string + Style.RESET_ALL)
+
+def remove_inaccessible_channels(file_path, inaccessible_channels):
+    print('Removing inaccessible channels from indexes...', end='\r')
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        channels = [row for row in reader if row['Channel Name'] not in inaccessible_channels]
+
+    with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=reader.fieldnames)
+        writer.writeheader()
+        writer.writerows(channels)
+    print('Removed inaccessible channels from indexes.')
 
 def write_to_text_file(data, filename):  # In case of emergency and CSV writer doenst work, this dumps output to txt
     try:

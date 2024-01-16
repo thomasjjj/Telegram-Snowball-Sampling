@@ -89,16 +89,21 @@ This tool is for educational and research purposes only. Please ensure that you 
 # TODO
 **List of manageable and fun TODOs:**
 - [ ] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
+  - May want to make this optional depending on speed - but TG API rate limiting is the biggest bottleneck so impact expected to be minimal/negligible.
+  - Consider alternative output formats.
 - [ ] Output to Gephi and other network analysis formats.
 - [ ] Edgelist creation
 - [ ] Add more detailed counts into the terminal feedback.
 - [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required).
 - [ ] Analysis of forward messages to assign a source language (useful for additional filtering).
+  - Lots of research papers covering this technique appear to add language filtering into the process. 
+  - Building this in on a per-channel and per-forward message level would automate this process
 - [ ] Statistical report of the process and findings (this may be useful for researchers identifying data biases).
-
   - List of all channels searched.
   - List of all forwards found (including those filtered out).
   - Some form of search ranking within the pool of analysed channels.
+- [ ] Add option to scrape channel details and metadata on collection or at output to create a more detailed list overview. 
+- [x] Added script to merge CSV results from multiple runs into a merged CSV with single list rather than lists per iteration.
 
 **Harder TODOs – All contributions and suggestions are welcome:** 
 - [ ] Add multi-API parallel processing to speed the process (will need more advanced queue assignment).
