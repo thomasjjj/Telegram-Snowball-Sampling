@@ -2,109 +2,213 @@
 ![Main Image](https://github.com/thomasjjj/Telegram-Snowball-Sampling/assets/118008765/58cae690-b8cc-4b93-b073-809d888fe49e)
 
 ## Overview
-The Telegram Snowball Sampling Tool is a Python-based utility designed for conducting snowball sampling to collect Telegram channels through forwards. This script uses the Telethon library to interact with Telegram's API, allowing for the automated discovery and processing of Telegram channels based on message forwards.
+The Telegram Snowball Sampling Tool is a Python-based utility designed for conducting comprehensive network analysis of Telegram channels through three main methods:
 
-## Summary of Snowball Sampling in Telegram Network Analysis
-Snowball sampling is a strategic methodology employed in network analysis, particularly effective for investigating populations that are otherwise difficult to observe directly. This method is especially useful in the context of Telegram, a social network where channels and chats serve as nodes. These nodes are interconnected through forwards, mentions, and internal hyperlinks, which function as the network edges.
+1. **Forwarded Messages** - Automatically discovers channels through message forwards
+2. **Channel Recommendations** - Collects Telegram's built-in channel recommendations 
+3. **URL Extraction** - Maps external connections by extracting URLs from messages
 
-### Concept and Application in Telegram
-In Telegram's complex network, the structure is not readily observable externally – channels generally need to be found to search the messages within them. Snowball sampling is thus an invaluable technique for mapping this concealed network. It begins with a selected initial sample (or 'seed') and expands through multiple steps, identifying relevant actors within this network through message forwards. The seed channel is crucial as it sets the direction and scope of the sampling. However, the choice of the seed can introduce biases, influencing the resulting sample and network representation.
+The tool creates detailed edge lists for network visualization and provides extensive analysis capabilities.
 
-### Data Collection and Expansion
-Data in this method are typically gathered using Telegram's "export chat history" function, however, this process connects through the Telegram API to allow the user to directly connect to Telegram and automate the process. This approach is known as exponential discriminative snowball sampling. It starts with a seed channel, often one with connections to specific interest groups or populations. The process involves collecting forwards from this channel, which reveals both the origin and dissemination paths of the information. This dual nature of forwards - identifying both the forwarder and the forwarded - creates a directed network structure.
+## Summary of Network Analysis in Telegram
+This tool implements multiple discovery methods to map the complex network structure of Telegram channels:
 
-### Methodological Considerations
-While effective, this technique can introduce certain distortions due to the non-random nature of the seed selection. This aspect necessitates careful consideration, especially when discussing methodological limitations.
+### Snowball Sampling Through Message Forwards
+Snowball sampling discovers channels through forwarded messages, starting with a seed channel and expanding outward. This method identifies both the origin and dissemination paths of information, creating a directed network structure.
 
-### Implementation Strategies
-Various strategies are employed to determine the expansion of the sample. For instance, one approach involves selecting a set number of prominent channels based on metrics like forwards, mentions, or links. Another strategy counts the distinct channels referencing a particular channel, mitigating the undue influence of larger channels. A combined approach evaluates channels based on the number of distinct references, balancing between prominence and diversity. This method can lead to the collection of a significant number of channels and messages, offering a comprehensive view of the network under study.
+### Channel Recommendations
+The tool leverages Telegram's built-in recommendation algorithm to discover topically related channels. This provides additional network insights beyond just forward relationships.
+
+### URL Extraction
+By capturing external URLs shared in messages, the tool maps connections between Telegram channels and external websites, providing a more comprehensive view of the information ecosystem.
 
 ## Important Warning: Runtime Expectations
 
 ### Exponential Growth in Runtime
-The Telegram Snowball Sampling Tool, while powerful, can potentially take several days (or drastically longer with more iterations) to complete its run. This extended runtime is due to the exponential nature of the snowball sampling process.
-
-- **Exponential Process Explained**: In snowball sampling, each iteration potentially adds a new set of channels to be processed in the next iteration. For example, if each channel forwards messages from just three new channels, in the first iteration, you will process three channels, nine in the second iteration, and twenty-seven in the third iteration. This growth in the number of channels is exponential, meaning that each additional iteration can significantly increase the total number of channels to be processed, leading to a massive increase in runtime.
-
-- **Impact of Additional Iterations**: Given this exponential growth, each additional iteration beyond the initial few can drastically increase the total runtime. Therefore, while the tool supports configuring the number of iterations, users should be mindful of this exponential increase in processing time.
+The Telegram Snowball Sampling Tool can take several days to complete its run due to the exponential nature of the sampling process. Each iteration potentially adds a new set of channels, growing exponentially (e.g., 3 channels in the first iteration can lead to 9 in the second and 27 in the third).
 
 ### Recommendations for Efficient Use
-- **Limit Iterations**: It's recommended to limit the process to three iterations for a balance between depth of search and practical runtime.
-- **Filter Forwards**: To improve efficiency, consider filtering forwards to focus on channels that are commonly mentioned. This approach helps in targeting more relevant channels and reduces unnecessary processing.
-- **Limit Posts Per Channel**: Another way to control runtime is by limiting the number of posts searched in each channel. This can significantly reduce the time taken per channel, especially for channels with a large number of posts.
-
+- **Limit Iterations**: Keep to 3 iterations or fewer to balance depth and runtime
+- **Filter Forwards**: Focus on channels with multiple mentions to target relevant content
+- **Limit Posts Per Channel**: Set a reasonable maximum for posts to check per channel
+- **Adjust Feature Settings**: Selectively enable/disable recommendations and URL extraction based on your needs
 
 ## Features
-- Automated collection of Telegram channels through snowball sampling.
-- Customizable iteration depth, mention thresholds, and message processing limits.
-- CSV output for easy analysis of collected data.
+- Automated discovery of Telegram channels through three methods:
+  - Forwarded message tracking
+  - Channel recommendations retrieval
+  - URL extraction from messages
+- Customizable parameters for depth, frequency thresholds, and scope
+- Comprehensive edge list creation for network analysis 
+- Network visualization ready output for tools like Gephi
+- Network metrics calculation and analysis
+- Environment-based configuration system
+- Detailed logging for monitoring progress
 
-## Requirements
-- Python 3.6 or higher.
-- Telethon library.
-- A registered Telegram application (for API credentials).
-
-## Configuration
-Edit the following parameters in the script as needed:
-- `iterations`: Number of iterations for the snowball sampling.
-- `min_mentions`: Minimum number of mentions for a channel to be included.
-- `max_posts`: Maximum number of posts to check per channel (leave blank for no limit).
-
-## Output Format
-The output CSV file contains columns for each iteration, with each row representing a discovered channel. The format is as follows:
-- `Iteration 1_id, Iteration 1_channelname, Iteration 2_id, Iteration 2_channelname, ...`
-
-## Merging CSV Files
-
-This section of the script is designed to efficiently merge data from multiple CSV files located in the `results` folder and compile them into a single CSV file. This process helps in consolidating data from various runs into a unified dataset.
-
-### Functionality
-
-- **Directory Check and Creation**: The script first checks for the existence of a `merged` directory. If this directory doesn't exist, it is automatically created.
-- **Data Aggregation**: All CSV files within the `results` directory are processed. The script reads each file and extracts channel IDs and names, assuming these are located in alternating columns.
-- **Duplicate Removal and Data Merging**: The new data is appended to any existing data in the `merged_channels.csv` file within the `merged` folder. The script ensures that only unique entries are retained, effectively removing any duplicates.
-- **Appending New Data**: If `merged_channels.csv` already exists, the script appends new, unique data to it. If the file doesn't exist, it's created and populated with the merged data.
-
-### Usage
-
-Simply execute the script, and it will automatically process and merge the CSV files. The resulting file, `merged_channels.csv`, will be located in the `merged` directory.
-
-```python
-if __name__ == '__main__':
-    # Specify the folders and filename
-    results_folder = 'results'
-    merged_folder = 'merged'
-    merged_filename = 'merged_channels.csv'
-    
-    # Call the function to merge CSV files
-    merge_csv_files(results_folder, merged_folder, merged_filename)
+## Project Structure
+```
+telegram-snowball-sampling/
+├── config.py                 # Configuration manager
+├── EdgeList.py               # Handles edge list creation
+├── example.env               # Template environment variables
+├── .env                      # Your environment variables (created from example.env)
+├── main.py                   # Main application script
+├── merge_csv_data.py         # CSV merging utility
+├── network_analysis.py       # Network analysis script
+├── recommendations.py        # Channel recommendations module
+├── README.md                 # Project documentation
+├── requirements.txt          # Python dependencies
+├── utils.py                  # Utility functions
+├── EdgeList/                 # Created during execution - edge list files
+├── merged/                   # Created during execution - merged results
+├── network_analysis/         # Created during analysis - network metrics
+└── results/                  # Created during execution - individual run results
 ```
 
-This script provides a seamless way to combine data from multiple iterations or runs, making data analysis and management more streamlined.
+## Requirements
+- Python 3.6 or higher
+- Telethon library
+- A registered Telegram application (for API credentials)
+- All dependencies listed in requirements.txt
 
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/telegram-snowball-sampling.git
+cd telegram-snowball-sampling
+```
+
+2. Create a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Configuration
+
+The tool automatically creates a `.env` file from the template and will prompt you for your Telegram API credentials when first run. You can also manually configure the following options in the `.env` file:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| TELEGRAM_API_ID | Your Telegram API ID | (required) |
+| TELEGRAM_API_HASH | Your Telegram API Hash | (required) |
+| TELEGRAM_SESSION_NAME | Name for the Telegram session | session_name |
+| DEFAULT_MIN_MENTIONS | Minimum mentions threshold | 5 |
+| DEFAULT_ITERATIONS | Number of iterations | 3 |
+| DEFAULT_MAX_POSTS | Maximum posts to check per channel | 100 |
+| DEFAULT_INCLUDE_RECOMMENDATIONS | Whether to include channel recommendations | True |
+| DEFAULT_RECOMMENDATIONS_DEPTH | Maximum depth for recommendations | 2 |
+| DEFAULT_INCLUDE_URLS | Whether to extract URLs from messages | True |
+| RESULTS_FOLDER | Directory for storing results | results |
+| MERGED_FOLDER | Directory for merged results | merged |
+| EDGE_LIST_FOLDER | Directory for edge list files | EdgeList |
+| EDGE_LIST_FILENAME | Name of the edge list file | Edge_List.csv |
+| MERGED_FILENAME | Name of the merged file | merged_channels.csv |
+| DEBUG | Enable debug logging | False |
+
+## Usage
+
+Run the main script:
+```bash
+python main.py
+```
+
+The script will:
+1. Prompt for Telegram API credentials if not configured
+2. Ask for seed channels (comma-separated)
+3. Request parameters for iterations, minimum mentions, etc.
+4. Begin the data collection process using all enabled methods
+5. Save results to CSV and edge list files
+6. Offer to run network analysis on the collected data
+
+## Data Collection Methods
+
+### 1. Forward Detection
+Analyzes messages in each channel to find forwards from other channels. This reveals information flow between channels.
+
+### 2. Channel Recommendations
+Retrieves Telegram's own channel recommendations for each discovered channel. These recommendations are based on Telegram's algorithm which considers content similarity and user overlap.
+
+### 3. URL Extraction
+Extracts all URLs shared in messages across channels, creating connections between Telegram channels and external websites.
+
+## Output Files
+
+The tool generates several outputs:
+
+1. **Individual Run Results** (in the `results` folder):
+   - CSV files containing channel IDs, names, and usernames
+   - URL lists from message content
+
+2. **Edge List** (in the `EdgeList` folder):
+   - CSV file with network connections, including:
+     - Forward relationships
+     - Recommendation relationships
+     - URL connections
+   - Connection types and weights for advanced analysis
+
+3. **Merged Results** (in the `merged` folder):
+   - Consolidated CSV with all unique channels found across multiple runs
+
+4. **Network Analysis** (in the `network_analysis` folder, when analysis is run):
+   - Network metrics in Excel format
+   - Gephi-compatible GEXF file for visualization
+   - Basic network visualization image
+
+## Network Analysis
+
+The included network analysis script (`network_analysis.py`) provides:
+
+1. **Basic Network Metrics**:
+   - Node and edge counts
+   - Network density
+   - Connected components
+   - Average path length
+
+2. **Key Influencer Identification**:
+   - Top source channels (with most outgoing connections)
+   - Top receiver channels (with most incoming connections)
+
+3. **Connection Type Analysis**:
+   - Distribution of connection types (forwards vs. recommendations vs. URLs)
+   - Weight distribution analysis
+
+4. **Visualization**:
+   - Gephi-compatible GEXF file
+   - Basic visualization image
+   - Network metrics in Excel format
+
+Run network analysis separately:
+```bash
+python network_analysis.py --edge-list EdgeList/Edge_List.csv --output-dir network_analysis
+```
+
+## Network Visualization with Gephi
+
+For advanced network visualization:
+
+1. Download and install [Gephi](https://gephi.org/)
+2. Import the GEXF file from the network_analysis folder
+3. Apply layouts like ForceAtlas2 to organize the network
+4. Style nodes based on metrics like degree or betweenness
+5. Run community detection algorithms to identify clusters
+
+A detailed guide is created in the results folder after each run.
 
 ## Disclaimer
 This tool is for educational and research purposes only. Please ensure that you comply with Telegram's terms of service and respect privacy and ethical guidelines when using this tool.
 
-# TODO
-**List of manageable and fun TODOs:**
-- [x] Add per-find CSV/TXT file saves to prevent loss of data if execution is stopped early.
-  - May want to make this optional depending on speed - but TG API rate limiting is the biggest bottleneck so impact expected to be minimal/negligible.
-  - Consider alternative output formats.
-- [ ] Output to Gephi and other network analysis formats.
-- [x] Edgelist creation
-- [ ] Add more detailed counts into the terminal feedback.
-- [ ] Add possible estimation of time remaining based on statistical evaluation of progress (likely monte-carlo required).
-- [ ] Analysis of forward messages to assign a source language (useful for additional filtering).
-  - Lots of research papers covering this technique appear to add language filtering into the process. 
-  - Building this in on a per-channel and per-forward message level would automate this process
-- [ ] Statistical report of the process and findings (this may be useful for researchers identifying data biases).
-  - List of all channels searched.
-  - List of all forwards found (including those filtered out).
-  - Some form of search ranking within the pool of analysed channels.
-- [ ] Add option to scrape channel details and metadata on collection or at output to create a more detailed list overview. 
-- [x] Added script to merge CSV results from multiple runs into a merged CSV with single list rather than lists per iteration.
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Harder TODOs – All contributions and suggestions are welcome:** 
-- [ ] Add multi-API parallel processing to speed the process (will need more advanced queue assignment).
-- [ ] Live visualisation of growing network.
+## Future Development
+- Add language detection for message content filtering
+- Implement community detection algorithms
+- Add multi-API parallel processing for improved performance
+- Create live network visualization capabilities
