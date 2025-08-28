@@ -381,8 +381,7 @@ if __name__ == '__main__':
         merge_csv_files(
             Config.RESULTS_FOLDER,
             Config.MERGED_FOLDER,
-            Config.MERGED_FILENAME,
-            "channels.csv"
+            Config.MERGED_FILENAME
         )
         print('Process Complete.')
 
