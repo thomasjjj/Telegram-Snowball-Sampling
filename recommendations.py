@@ -1,18 +1,26 @@
 from telethon.tl.functions.channels import GetChannelRecommendationsRequest
 from telethon.errors import FloodWaitError
 import asyncio
-import os
 import re
 import logging
+from typing import Any
+
+from EdgeList import create_edge_list
 from config import Config
 
 logger = logging.getLogger(__name__)
 
 
-async def get_channel_recommendations(client, channel_entity, initial_channel=None, depth=0, max_depth=2,
-                                      processed_channels=None, edge_list_writer=None):
-    """
-    Recursively fetches Telegram channel recommendations starting from a given channel.
+async def get_channel_recommendations(
+    client,
+    channel_entity,
+    initial_channel=None,
+    depth: int = 0,
+    max_depth: int = 2,
+    processed_channels: set | None = None,
+    edge_list_writer: Any | None = None,
+) -> set:
+    """Recursively fetch Telegram channel recommendations starting from a given channel.
 
     Args:
         client (TelegramClient): The initialized Telegram client.
@@ -20,11 +28,11 @@ async def get_channel_recommendations(client, channel_entity, initial_channel=No
         initial_channel (str): The original channel used for naming files.
         depth (int): Current recursion depth.
         max_depth (int): Maximum recursion depth.
-        processed_channels (set): Set of processed channel usernames/IDs.
-        edge_list_writer (function): Function to write edge list entries.
+        processed_channels (set, optional): Set of processed channel usernames/IDs.
+        edge_list_writer (csv.writer or TextIO, optional): Writer for edge list entries.
 
     Returns:
-        set: Set of newly discovered channel entities.
+        set: Newly discovered channel entities.
     """
     if processed_channels is None:
         processed_channels = set()
@@ -90,16 +98,17 @@ async def get_channel_recommendations(client, channel_entity, initial_channel=No
 
                         logger.info(f"Depth {depth}: Recommendation - Title: {title}, Username: @{username}")
 
-                        # Write to edge list if writer function exists
+                        # Write to edge list if writer exists
                         if edge_list_writer and current_channel_id and channel_id:
-                            edge_list_writer(
+                            create_edge_list(
+                                edge_list_writer,
                                 current_channel_id,
                                 current_channel_title,
                                 current_channel_username,
                                 channel_id,
                                 title,
                                 username,
-                                connection_type="recommendation"
+                                connection_type="recommendation",
                             )
 
                         # Only continue if we haven't reached max depth
@@ -152,15 +161,19 @@ async def extract_urls_from_message(message):
     return []
 
 
-async def process_urls(client, channel_entity, edge_list_writer, url_file=None):
-    """
-    Process messages in a channel to extract and log outbound URLs.
+async def process_urls(
+    client,
+    channel_entity,
+    edge_list_writer: Any,
+    url_file: Any | None = None,
+) -> set:
+    """Process messages in a channel to extract and log outbound URLs.
 
     Args:
         client (TelegramClient): The initialized Telegram client.
         channel_entity (str/Channel): The channel entity to process.
-        edge_list_writer (function): Function to write edge list entries.
-        url_file (file): Open file handle to write URLs to.
+        edge_list_writer (csv.writer or TextIO): Writer for edge list entries.
+        url_file (file, optional): Open file handle to write URLs to.
 
     Returns:
         set: Set of extracted URLs.
@@ -197,17 +210,18 @@ async def process_urls(client, channel_entity, edge_list_writer, url_file=None):
             for url in urls:
                 url_set.add(url)
 
-                # Write to edge list if writer function exists and IDs are valid
+                # Write to edge list if writer exists and IDs are valid
                 if edge_list_writer and current_channel_id:
                     # For URLs, use the URL as the target ID and "External URL" as the target name
-                    edge_list_writer(
+                    create_edge_list(
+                        edge_list_writer,
                         current_channel_id,
                         current_channel_title,
                         current_channel_username,
                         url,  # URL as ID
                         "External URL",  # Generic name
                         None,  # No username for external URLs
-                        connection_type="outbound_link"
+                        connection_type="outbound_link",
                     )
 
                 # Write to URL file if provided
