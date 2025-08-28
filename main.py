@@ -11,6 +11,8 @@ import datetime
 import asyncio
 import logging
 import os
+import csv
+from typing import Any
 
 # Set up logging
 logging.basicConfig(
@@ -20,10 +22,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def process_channels(client, csv_file_path, initial_channels, iterations, min_mentions=5, max_posts=None,
-                           include_recommendations=True, recommendations_depth=2, include_urls=True):
-    """
-    Process channels using snowball sampling technique.
+async def process_channels(
+    client,
+    csv_file_path,
+    initial_channels,
+    iterations,
+    min_mentions: int = 5,
+    max_posts: int | None = None,
+    include_recommendations: bool = True,
+    recommendations_depth: int = 2,
+    include_urls: bool = True,
+    edge_list_writer: Any | None = None,
+):
+    """Process channels using snowball sampling technique.
 
     Args:
         client (TelegramClient): Initialized Telegram client
@@ -35,6 +46,7 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
         include_recommendations (bool): Whether to include channel recommendations
         recommendations_depth (int): Maximum depth for recommendations
         include_urls (bool): Whether to extract and process URLs
+        edge_list_writer (csv.writer or TextIO, optional): Writer for edge list entries
 
     Returns:
         tuple: Results, durations, channel counts, and total messages processed
@@ -94,7 +106,7 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
                             client,
                             channel_entity,
                             max_depth=recommendations_depth,
-                            edge_list_writer=create_edge_list
+                            edge_list_writer=edge_list_writer,
                         )
                         # Add recommendations to the channels to process
                         for recommended_channel in recommendation_channels:
@@ -103,7 +115,7 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
 
                     # Process URLs if enabled
                     if include_urls:
-                        await process_urls(client, channel_entity, create_edge_list, url_file)
+                        await process_urls(client, channel_entity, edge_list_writer, url_file)
 
                     try:
                         channel_message_count = 0
@@ -139,17 +151,16 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
                                             fwd_from_name = getattr(fwd_from_entity, 'title', 'Unknown')
                                             fwd_from_username = getattr(fwd_from_entity, 'username', 'Unknown')
 
-                                            # Call the function to create the edge list
+                                            # Write to edge list
                                             create_edge_list(
-                                                Config.EDGE_LIST_FOLDER,
-                                                Config.EDGE_LIST_FILENAME,
+                                                edge_list_writer,
                                                 fwd_from_id_str,
                                                 fwd_from_name,
                                                 fwd_from_username,
                                                 channel_id_str,
                                                 channel_name,
                                                 channel_username,
-                                                connection_type="forward"
+                                                connection_type="forward",
                                             )
 
                                             # Write to CSV immediately upon finding a forward
@@ -345,6 +356,22 @@ async def main():
         await client.disconnect()
         return
 
+    # Prepare edge list writer
+    edge_list_path = os.path.join(Config.EDGE_LIST_FOLDER, Config.EDGE_LIST_FILENAME)
+    if not os.path.exists(Config.EDGE_LIST_FOLDER):
+        os.makedirs(Config.EDGE_LIST_FOLDER)
+        logger.info(f"Created directory: {Config.EDGE_LIST_FOLDER}")
+
+    header_needed = not os.path.exists(edge_list_path) or os.path.getsize(edge_list_path) == 0
+    edge_list_file = open(edge_list_path, 'a', newline='', encoding='utf-8')
+    edge_list_writer = csv.writer(edge_list_file)
+    if header_needed:
+        edge_list_writer.writerow([
+            'From_Channel_ID', 'From_Channel_Name', 'From_Channel_Username',
+            'To_Channel_ID', 'To_Channel_Name', 'To_Channel_Username',
+            'ConnectionType', 'Weight'
+        ])
+
     # Run the snowball sampling process
     try:
         results, iteration_durations, channel_counts, total_messages_processed = await process_channels(
@@ -356,7 +383,8 @@ async def main():
             max_posts,
             include_recommendations,
             recommendations_depth,
-            include_urls
+            include_urls,
+            edge_list_writer=edge_list_writer,
         )
     except Exception as e:
         logger.error(f"Error during processing: {e}")
@@ -364,7 +392,9 @@ async def main():
             import traceback
             logger.error(traceback.format_exc())
         await client.disconnect()
+        edge_list_file.close()
         return
+    edge_list_file.close()
 
     # Disconnect from Telegram
     await client.disconnect()
