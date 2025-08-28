@@ -3,11 +3,20 @@ import pandas as pd
 import csv
 import logging
 
+
 logger = logging.getLogger(__name__)
 
-def merge_csv_files(results_folder: str, merged_folder: str, merged_filename: str,
-                    main_directory_csv: str) -> None:
+def merge_csv_files(results_folder: str, merged_folder: str, merged_filename: str) -> None:
+    """Merge CSV files from the results directory into a deduplicated CSV.
+
+    Args:
+        results_folder: Directory containing individual result CSV files.
+        merged_folder: Directory where the merged CSV will be stored.
+        merged_filename: Name of the output merged CSV file.
+    """
+
     logger.info('Merging and de-duplicating CSVs...')
+
     merged_file_path = os.path.join(merged_folder, merged_filename)
 
     # Create 'merged' directory if it doesn't exist
@@ -54,5 +63,5 @@ def merge_csv_files(results_folder: str, merged_folder: str, merged_filename: st
 
 if __name__ == '__main__':
     # Specify the folders and filename
-    results_folder, merged_folder, merged_filename, main_directory_csv = 'results', 'merged', 'merged_channels.csv', 'channels.csv'
-    merge_csv_files(results_folder, merged_folder, merged_filename, main_directory_csv)  # Call the function
+    results_folder, merged_folder, merged_filename = 'results', 'merged', 'merged_channels.csv'
+    merge_csv_files(results_folder, merged_folder, merged_filename)  # Call the function
