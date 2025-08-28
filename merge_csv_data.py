@@ -1,9 +1,13 @@
 import os
 import pandas as pd
 import csv
+import logging
 
-def merge_csv_files(results_folder, merged_folder, merged_filename, main_directory_csv):
-    print('Merging and de-duplicating CSVs...')
+logger = logging.getLogger(__name__)
+
+def merge_csv_files(results_folder: str, merged_folder: str, merged_filename: str,
+                    main_directory_csv: str) -> None:
+    logger.info('Merging and de-duplicating CSVs...')
     merged_file_path = os.path.join(merged_folder, merged_filename)
 
     # Create 'merged' directory if it doesn't exist
@@ -43,7 +47,7 @@ def merge_csv_files(results_folder, merged_folder, merged_filename, main_directo
     # Write merged data to a new CSV file
     combined_data.to_csv(merged_file_path, index=False, encoding='utf-8')
 
-    print(f"Merged data written to {merged_file_path}")
+    logger.info("Merged data written to %s", merged_file_path)
 
 
 
