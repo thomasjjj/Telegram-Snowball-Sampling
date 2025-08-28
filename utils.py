@@ -295,8 +295,10 @@ def update_env_file(env_file_path: str, api_id: str, api_hash: str) -> None:
             logger.error("Failed to create .env file: %s", inner_e)
 
 
-def help() -> None:
-    """Display help information about the tool"""
+
+def print_help() -> None:
+    """Display help information about the tool."""
+
     printC('''----
     HELP
     ----

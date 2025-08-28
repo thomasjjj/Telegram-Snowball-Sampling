@@ -268,9 +268,9 @@ async def main():
     # Get user input for channels and parameters
     initial_channels_input = input("\nEnter comma-separated Telegram Channel(s) (or type 'help'): ")
 
-    # Run the help function then prompt user if requested
+    # Run the print_help function then prompt user if requested
     if initial_channels_input.lower() == "help":
-        help()
+        print_help()
         initial_channels_input = input("\nEnter Telegram Channel(s): ")
 
     initial_channels = [channel.strip() for channel in initial_channels_input.split(',') if channel.strip()]
