@@ -9,30 +9,31 @@ import re
 import time
 import logging
 import shutil
+from typing import Any
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def intro():
+def intro() -> None:
     """Display the introduction ASCII art and warning messages"""
-    printC(r''' 
+    printC(r'''
               __________-------____                 ____-------__________
           \------____-------___--__---------__--___-------____------/
            \//////// / / / / / \   _-------_   / \ \ \ \ \ \\\\\\\\/
              \////-/-/------/_/_| /___   ___\ |_\_\------\-\-\\\\/
                --//// / /  /  //|| (O)\ /(O) ||\\  \  \ \ \\\\--
                     ---__/  // /| \_  /V\  _/ |\ \\  \__---
-                         -//  / /\_ busting _/\ \  \\-
+                         -//  / /\_ busting _/\ \  \\- 
                            \_/_/ /\bad guys!/\ \_\_/
                                ----\   |   /----
                                     | -|- |
                                    /   |   \
                                    ---- \___|''', Fore.LIGHTMAGENTA_EX)
-    print("                     ===================================")
-    print("                     _TELEGRAM CHANNEL SNOWBALL SAMPLER_")
-    print("                     Created by Tom Jarvis. Use for good")
-    print("                     ===================================\n")
+    logger.info("                     ===================================")
+    logger.info("                     _TELEGRAM CHANNEL SNOWBALL SAMPLER_")
+    logger.info("                     Created by Tom Jarvis. Use for good")
+    logger.info("                     ===================================\n")
 
     printC(
         '-- Warning: Due to exponential growth, execution time can be extensive. \n   More than three iterations may take weeks. Apply appropriate filtering.\n'
@@ -40,17 +41,18 @@ def intro():
         Fore.YELLOW)
 
 
-def final_message(start_time, total_messages_processed, iteration_durations, channel_counts):
+def final_message(start_time: float, total_messages_processed: int,
+                  iteration_durations: list[float], channel_counts: list[int]) -> None:
     """Display final statistics after completion"""
     end_time = time.time()
     total_time = end_time - start_time
 
-    print("\n==== EXECUTION SUMMARY ====")
-    print(f'Total messages processed: {total_messages_processed}')
+    logger.info("\n==== EXECUTION SUMMARY ====")
+    logger.info("Total messages processed: %d", total_messages_processed)
 
     # Print iteration durations
     for i, duration in enumerate(iteration_durations, 1):
-        print(f"Iteration {i} time: {duration:.2f} seconds")
+        logger.info("Iteration %d time: %.2f seconds", i, duration)
 
     # Calculate and print human-readable total time
     hours, remainder = divmod(total_time, 3600)
@@ -62,52 +64,57 @@ def final_message(start_time, total_messages_processed, iteration_durations, cha
         time_str += f"{int(minutes)} minutes, "
     time_str += f"{seconds:.2f} seconds"
 
-    print(f"Total execution time: {time_str}")
+    logger.info("Total execution time: %s", time_str)
 
     # Print the number of channels per iteration
-    print("\n==== CHANNELS PER ITERATION ====")
+    logger.info("\n==== CHANNELS PER ITERATION ====")
     for i, count in enumerate(channel_counts, 1):
-        print(f"Number of channels in iteration {i}: {count}")
+        logger.info("Number of channels in iteration %d: %d", i, count)
 
     # Total channels
     total_channels = sum(channel_counts)
-    print(f"Total unique channels discovered: {total_channels}")
+    logger.info("Total unique channels discovered: %d", total_channels)
 
     # Suggest network analysis
-    print("\n==== NEXT STEPS ====")
-    print("Your edge list has been saved to the EdgeList folder.")
-    print("For network visualization, you can import Edge_List.csv into Gephi or similar software.")
-    print("For detailed analysis, examine the URLs collected in the results folder.")
+    logger.info("\n==== NEXT STEPS ====")
+    logger.info("Your edge list has been saved to the EdgeList folder.")
+    logger.info("For network visualization, you can import Edge_List.csv into Gephi or similar software.")
+    logger.info("For detailed analysis, examine the URLs collected in the results folder.")
 
 
-def split_search_terms(input_string):
+def split_search_terms(input_string: str) -> list[str]:
     """Split a comma-separated string into a list of terms"""
     return [term.strip() for term in input_string.split(',')]
 
 
-def sanitize_filename(filename):
+def sanitize_filename(filename: str) -> str:
     """Sanitize the filename by removing or replacing characters that may cause issues"""
     return re.sub(r'[<>:"/\\|?*]', '', filename)
 
 
-def printC(string, colour):
-    """Print colored text and then reset color
+def printC(string: str, colour: str, level: int = logging.INFO) -> None:
+    """Log colored text.
 
     Args:
-        string (str): The text to print
-        colour: Color from colorama.Fore
+        string (str): The text to log
+        colour (str): Color from colorama.Fore
+        level (int, optional): Logging level. Defaults to logging.INFO.
     """
-    print(colour + string + Style.RESET_ALL)
+    logger.log(level, "%s%s%s", colour, string, Style.RESET_ALL)
 
 
-def remove_inaccessible_channels(file_path, inaccessible_channels):
-    """Remove inaccessible channels from a CSV file
+def remove_inaccessible_channels(file_path: str, inaccessible_channels: list[str]) -> None:
+    """Remove inaccessible channels from a CSV file.
 
     Args:
         file_path (str): Path to the CSV file
-        inaccessible_channels (list): List of channel names to remove
+        inaccessible_channels (list[str]): List of channel names to remove
     """
-    logger.info(f"Removing {len(inaccessible_channels)} inaccessible channels from {file_path}")
+    logger.info(
+        "Removing %d inaccessible channels from %s",
+        len(inaccessible_channels),
+        file_path,
+    )
 
     try:
         with open(file_path, mode='r', encoding='utf-8') as file:
@@ -120,28 +127,28 @@ def remove_inaccessible_channels(file_path, inaccessible_channels):
             writer.writeheader()
             writer.writerows(channels)
 
-        logger.info(f"Successfully removed inaccessible channels from {file_path}")
+        logger.info("Successfully removed inaccessible channels from %s", file_path)
     except Exception as e:
-        logger.error(f"Error removing inaccessible channels: {e}")
+        logger.error("Error removing inaccessible channels: %s", e)
 
 
-def write_to_text_file(data, filename):
-    """Write data to a text file as JSON (backup mechanism)
+def write_to_text_file(data: Any, filename: str) -> None:
+    """Write data to a text file as JSON (backup mechanism).
 
     Args:
-        data: Data to write to the file
+        data (Any): Data to write to the file
         filename (str): Path to the output file
     """
     try:
         with open(filename, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
-        logger.info(f"Data written to {filename}")
+        logger.info("Data written to %s", filename)
     except Exception as e:
-        logger.error(f"Failed to write to text file: {e}")
+        logger.error("Failed to write to text file: %s", e)
 
 
-async def attempt_connection_to_telegram():
-    """Connect to Telegram API using credentials from config or by prompting the user
+async def attempt_connection_to_telegram() -> TelegramClient:
+    """Connect to Telegram API using credentials from config or by prompting the user.
 
     Returns:
         TelegramClient: A connected TelegramClient instance
@@ -159,16 +166,15 @@ async def attempt_connection_to_telegram():
     await client.start()
 
     logger.info("Connection to Telegram established.")
-    print("Connection to Telegram established.")
-    print("Please wait...")
+    logger.info("Please wait...")
     return client
 
 
-def retrieve_api_details():
-    """Retrieve API details from .env file or prompt user and create .env file
+def retrieve_api_details() -> tuple[str, str]:
+    """Retrieve API details from .env file or prompt user and create .env file.
 
     Returns:
-        tuple: API ID and API Hash
+        tuple[str, str]: API ID and API Hash
     """
     # Check if .env file exists
     env_file_path = '.env'
@@ -214,7 +220,7 @@ DEBUG=False
 """)
 
     # Prompt user for API credentials
-    print(
+    logger.info(
         '\nPlease enter your Telegram API credentials\n'
         'These can be retrieved from https://my.telegram.org/auth\n'
     )
@@ -225,14 +231,19 @@ DEBUG=False
     update_env_file(env_file_path, api_id, api_hash)
 
     # Log the retrieval
-    logger.info(f"API ID retrieved and saved to .env: {api_id}")
-    print(f'\nAPI ID saved: {api_id} ¦ API Hash saved: {api_hash[0:3]}...{api_hash[-3:]}\n')
+    logger.info("API ID retrieved and saved to .env: %s", api_id)
+    logger.info(
+        "\nAPI ID saved: %s ¦ API Hash saved: %s...%s\n",
+        api_id,
+        api_hash[0:3],
+        api_hash[-3:],
+    )
 
     return api_id, api_hash
 
 
-def update_env_file(env_file_path, api_id, api_hash):
-    """Update the .env file with new API credentials
+def update_env_file(env_file_path: str, api_id: str, api_hash: str) -> None:
+    """Update the .env file with new API credentials.
 
     Args:
         env_file_path (str): Path to the .env file
@@ -260,7 +271,7 @@ def update_env_file(env_file_path, api_id, api_hash):
 
         logger.info("Successfully updated API credentials in .env file")
     except Exception as e:
-        logger.error(f"Error updating .env file: {e}")
+        logger.error("Error updating .env file: %s", e)
         # In case of error, write to the file more directly
         try:
             with open(env_file_path, 'w', encoding='utf-8') as f:
@@ -281,11 +292,13 @@ def update_env_file(env_file_path, api_id, api_hash):
                 f.write("DEBUG=False\n")
             logger.info("Created new .env file with API credentials")
         except Exception as inner_e:
-            logger.error(f"Failed to create .env file: {inner_e}")
+            logger.error("Failed to create .env file: %s", inner_e)
+
 
 
 def print_help() -> None:
     """Display help information about the tool."""
+
     printC('''----
     HELP
     ----
@@ -318,21 +331,21 @@ def print_help() -> None:
     Configuration options can be set in the .env file to customize default behavior.''', Fore.GREEN)
 
 
-def error_fix(results):
+def error_fix(results: Any) -> None:
     """Create a backup of results in case of critical error
 
     Args:
-        results: The data to save
+        results (Any): The data to save
     """
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     backup_filename = f'backup_results_{timestamp}.txt'
 
-    printC(f"Attempting to recover results to text file due to critical issue...", Fore.YELLOW)
+    printC("Attempting to recover results to text file due to critical issue...", Fore.YELLOW)
     write_to_text_file(results, backup_filename)
     printC(f"Backup saved to {backup_filename}", Fore.GREEN)
 
 
-def create_network_visualization_guide():
+def create_network_visualization_guide() -> None:
     """Create a text file with instructions for visualizing the network data"""
     guide_path = os.path.join(Config.RESULTS_FOLDER, "network_visualization_guide.txt")
 

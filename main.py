@@ -13,6 +13,10 @@ import logging
 import os
 
 # Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -106,7 +110,7 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
 
                         async for message in client.iter_messages(channel):
                             if Config.DEBUG and total_messages_processed % 100 == 0:
-                                print(f'Processing message {total_messages_processed}...', end='\r')
+                                logger.debug("Processing message %d...", total_messages_processed)
 
                             total_messages_processed += 1
 
@@ -163,11 +167,12 @@ async def process_channels(client, csv_file_path, initial_channels, iterations, 
                                             queue = len(channels_to_process)
                                             completed = len(processed_channels)
 
-                                            print(
-                                                f'Processed messages: [{total_messages_processed}]; channels: [{completed}]'
-                                                f' (iteration {iteration_number}/{iterations}) Left in queue: {queue} '
-                                                f'¦ Forward found in: {channel} = {channel_name} <<< '
-                                                f'{fwd_from_id} = {fwd_from_name} ')
+                                            logger.info(
+                                                f"Processed messages: [{total_messages_processed}]; channels: [{completed}]"
+                                                f" (iteration {iteration_number}/{iterations}) Left in queue: {queue} "
+                                                f"¦ Forward found in: {channel} = {channel_name} <<< "
+                                                f"{fwd_from_id} = {fwd_from_name} "
+                                            )
 
                                         except Exception as ex:
                                             logger.error(f"Error processing forward: {ex}")
@@ -377,19 +382,19 @@ if __name__ == '__main__':
         asyncio.run(main())
 
         # Run Merge CSV Script -- retains the output CSV of this run but appends data to merged CSV as well
-        print('Collating output files to master list in /merged folder...')
+        logger.info('Collating output files to master list in /merged folder...')
         merge_csv_files(
             Config.RESULTS_FOLDER,
             Config.MERGED_FOLDER,
             Config.MERGED_FILENAME,
             "channels.csv"
         )
-        print('Process Complete.')
+        logger.info('Process Complete.')
 
         # Offer to run network analysis
         run_analysis = input("\nWould you like to run network analysis on the collected data? (y/n): ")
         if run_analysis.strip().lower() in ('y', 'yes', 'true', '1'):
-            print("Running network analysis...")
+            logger.info("Running network analysis...")
             try:
                 import network_analysis
                 import sys
@@ -403,13 +408,13 @@ if __name__ == '__main__':
                                 "--edge-list", edge_list_path,
                                 "--output-dir", output_dir])
 
-                print(f"Analysis complete! Results saved to {output_dir} directory.")
+                logger.info("Analysis complete! Results saved to %s directory.", output_dir)
             except Exception as e:
-                print(f"Error running network analysis: {e}")
-                print("You can run it manually with: python network_analysis.py")
+                logger.error("Error running network analysis: %s", e)
+                logger.info("You can run it manually with: python network_analysis.py")
 
     except KeyboardInterrupt:
-        print("\nProcess interrupted by user. Saving any collected data...")
+        logger.warning("Process interrupted by user. Saving any collected data...")
     except Exception as e:
         logger.critical(f"Critical error: {e}")
         if Config.DEBUG:

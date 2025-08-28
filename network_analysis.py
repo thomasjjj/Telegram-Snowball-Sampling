@@ -15,6 +15,7 @@ import pandas as pd
 import argparse
 import logging
 from config import Config
+from typing import Any
 
 # Set up logging
 logging.basicConfig(
@@ -24,9 +25,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_edge_list(edge_list_path):
-    """
-    Load the edge list from a CSV file into a NetworkX graph.
+def load_edge_list(edge_list_path: str) -> nx.DiGraph:
+    """Load the edge list from a CSV file into a NetworkX graph.
 
     Args:
         edge_list_path (str): Path to the edge list CSV file.
@@ -34,7 +34,7 @@ def load_edge_list(edge_list_path):
     Returns:
         nx.DiGraph: A directed graph representing the network.
     """
-    logger.info(f"Loading edge list from {edge_list_path}")
+    logger.info("Loading edge list from %s", edge_list_path)
 
     # Create a directed graph
     G = nx.DiGraph()
@@ -74,25 +74,28 @@ def load_edge_list(edge_list_path):
                     weight=float(row.get('Weight', 1))
                 )
 
-        logger.info(f"Loaded network with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+        logger.info(
+            "Loaded network with %d nodes and %d edges",
+            G.number_of_nodes(),
+            G.number_of_edges(),
+        )
         return G
 
     except Exception as e:
-        logger.error(f"Error loading edge list: {e}")
+        logger.error("Error loading edge list: %s", e)
         return nx.DiGraph()  # Return empty graph on error
 
 
-def calculate_network_metrics(G):
-    """
-    Calculate various network metrics for the graph.
+def calculate_network_metrics(G: nx.DiGraph) -> dict[str, Any]:
+    """Calculate various network metrics for the graph.
 
     Args:
         G (nx.DiGraph): The network graph.
 
     Returns:
-        dict: Dictionary containing calculated metrics.
+        dict[str, Any]: Dictionary containing calculated metrics.
     """
-    metrics = {}
+    metrics: dict[str, Any] = {}
 
     # Basic metrics
     metrics['node_count'] = G.number_of_nodes()
@@ -129,56 +132,45 @@ def calculate_network_metrics(G):
         largest_cc_graph = UG.subgraph(largest_cc)
         metrics['average_path_length'] = nx.average_shortest_path_length(largest_cc_graph)
     except Exception as e:
-        logger.warning(f"Could not calculate average path length: {e}")
+        logger.warning("Could not calculate average path length: %s", e)
         metrics['average_path_length'] = None
 
     return metrics
 
 
-def print_network_summary(metrics):
-    """
-    Print a summary of the network metrics.
+def log_network_summary(metrics: dict[str, Any], G: nx.DiGraph) -> None:
+    """Log a summary of the network metrics."""
+    logger.info("\n===== NETWORK ANALYSIS SUMMARY =====\n")
 
-    Args:
-        metrics (dict): Dictionary containing calculated metrics.
-    """
-    print("\n===== NETWORK ANALYSIS SUMMARY =====\n")
+    logger.info("Network Size:")
+    logger.info("  Nodes (Channels): %d", metrics['node_count'])
+    logger.info("  Edges (Connections): %d", metrics['edge_count'])
+    logger.info("  Density: %.4f", metrics['density'])
 
-    print(f"Network Size:")
-    print(f"  Nodes (Channels): {metrics['node_count']}")
-    print(f"  Edges (Connections): {metrics['edge_count']}")
-    print(f"  Density: {metrics['density']:.4f}")
-
-    print("\nConnectivity:")
-    print(f"  Weakly Connected Components: {metrics['weakly_connected_components']}")
-    print(f"  Strongly Connected Components: {metrics['strongly_connected_components']}")
+    logger.info("\nConnectivity:")
+    logger.info("  Weakly Connected Components: %d", metrics['weakly_connected_components'])
+    logger.info("  Strongly Connected Components: %d", metrics['strongly_connected_components'])
 
     if metrics['average_path_length']:
-        print(f"  Average Path Length: {metrics['average_path_length']:.2f}")
+        logger.info("  Average Path Length: %.2f", metrics['average_path_length'])
 
-    print("\nConnection Types:")
+    logger.info("\nConnection Types:")
     for conn_type, count in metrics['connection_types'].items():
-        print(f"  {conn_type}: {count} ({count / metrics['edge_count'] * 100:.1f}%)")
+        logger.info("  %s: %d (%.1f%%)", conn_type, count, count / metrics['edge_count'] * 100)
 
-    print("\nTop Channel Sources (outgoing connections):")
+    logger.info("\nTop Channel Sources (outgoing connections):")
     for i, (node_id, degree) in enumerate(metrics['top_sources'], 1):
         node_name = G.nodes[node_id].get('name', 'Unknown')
-        print(f"  {i}. {node_name} (ID: {node_id}): {degree} outgoing connections")
+        logger.info("  %d. %s (ID: %s): %d outgoing connections", i, node_name, node_id, degree)
 
-    print("\nTop Channel Receivers (incoming connections):")
+    logger.info("\nTop Channel Receivers (incoming connections):")
     for i, (node_id, degree) in enumerate(metrics['top_receivers'], 1):
         node_name = G.nodes[node_id].get('name', 'Unknown')
-        print(f"  {i}. {node_name} (ID: {node_id}): {degree} incoming connections")
+        logger.info("  %d. %s (ID: %s): %d incoming connections", i, node_name, node_id, degree)
 
 
-def export_metrics_to_csv(metrics, output_path):
-    """
-    Export the network metrics to a CSV file.
-
-    Args:
-        metrics (dict): Dictionary containing calculated metrics.
-        output_path (str): Path to save the CSV file.
-    """
+def export_metrics_to_csv(metrics: dict[str, Any], output_path: str) -> None:
+    """Export the network metrics to a CSV file."""
     try:
         # Basic metrics
         basic_metrics = {
@@ -212,22 +204,16 @@ def export_metrics_to_csv(metrics, output_path):
             top_sources_df.to_excel(writer, sheet_name='Top Sources', index=False)
             top_receivers_df.to_excel(writer, sheet_name='Top Receivers', index=False)
 
-        logger.info(f"Exported metrics to {output_path}")
-        print(f"\nDetailed metrics have been exported to: {output_path}")
+        logger.info("Exported metrics to %s", output_path)
+        logger.info("\nDetailed metrics have been exported to: %s", output_path)
 
     except Exception as e:
-        logger.error(f"Error exporting metrics to CSV: {e}")
-        print(f"Error exporting metrics: {e}")
+        logger.error("Error exporting metrics to CSV: %s", e)
+        logger.error("Error exporting metrics: %s", e)
 
 
-def generate_gephi_file(G, output_path):
-    """
-    Generate a GEXF file for use with Gephi visualization software.
-
-    Args:
-        G (nx.DiGraph): The network graph.
-        output_path (str): Path to save the GEXF file.
-    """
+def generate_gephi_file(G: nx.DiGraph, output_path: str) -> None:
+    """Generate a GEXF file for use with Gephi visualization software."""
     try:
         # Add readable labels to nodes
         for node, attr in G.nodes(data=True):
@@ -237,23 +223,17 @@ def generate_gephi_file(G, output_path):
 
         # Write to GEXF file
         nx.write_gexf(G, output_path)
-        logger.info(f"Generated Gephi file at {output_path}")
-        print(f"\nGephi file has been generated at: {output_path}")
-        print("You can open this file in Gephi for visualization and further analysis.")
+        logger.info("Generated Gephi file at %s", output_path)
+        logger.info("\nGephi file has been generated at: %s", output_path)
+        logger.info("You can open this file in Gephi for visualization and further analysis.")
 
     except Exception as e:
-        logger.error(f"Error generating Gephi file: {e}")
-        print(f"Error generating Gephi file: {e}")
+        logger.error("Error generating Gephi file: %s", e)
+        logger.error("Error generating Gephi file: %s", e)
 
 
-def generate_network_visualization(G, output_path):
-    """
-    Generate a basic network visualization using matplotlib.
-
-    Args:
-        G (nx.DiGraph): The network graph.
-        output_path (str): Path to save the visualization.
-    """
+def generate_network_visualization(G: nx.DiGraph, output_path: str) -> None:
+    """Generate a basic network visualization using matplotlib."""
     try:
         # Create a simplified graph for visualization (limit to 100 nodes if larger)
         if G.number_of_nodes() > 100:
@@ -308,12 +288,12 @@ def generate_network_visualization(G, output_path):
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
 
-        logger.info(f"Generated network visualization at {output_path}")
-        print(f"\nNetwork visualization has been generated at: {output_path}")
+        logger.info("Generated network visualization at %s", output_path)
+        logger.info("\nNetwork visualization has been generated at: %s", output_path)
 
     except Exception as e:
-        logger.error(f"Error generating network visualization: {e}")
-        print(f"Error generating visualization: {e}")
+        logger.error("Error generating network visualization: %s", e)
+        logger.error("Error generating visualization: %s", e)
 
 
 if __name__ == "__main__":
@@ -339,14 +319,14 @@ if __name__ == "__main__":
     G = load_edge_list(args.edge_list_path)
 
     if G.number_of_nodes() == 0:
-        print("No nodes found in the edge list. Please check the file path and format.")
+        logger.error("No nodes found in the edge list. Please check the file path and format.")
         exit(1)
 
     # Calculate network metrics
     metrics = calculate_network_metrics(G)
 
-    # Print network summary
-    print_network_summary(metrics)
+    # Log network summary
+    log_network_summary(metrics, G)
 
     # Export metrics to CSV
     export_metrics_to_csv(metrics, metrics_output_path)
@@ -357,5 +337,5 @@ if __name__ == "__main__":
     # Generate network visualization
     generate_network_visualization(G, viz_output_path)
 
-    print("\nAnalysis complete!")
-    print(f"All output files have been saved to the '{args.output_dir}' directory.")
+    logger.info("\nAnalysis complete!")
+    logger.info("All output files have been saved to the '%s' directory.", args.output_dir)
