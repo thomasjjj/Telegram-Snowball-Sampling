@@ -50,12 +50,20 @@ async def process_channels(
 
     Returns:
         tuple: Results, durations, channel counts, and total messages processed
+
+    Note:
+        Channel entities are cached to minimize redundant API calls. The current channel entity is reused
+        when iterating messages, and forwarded channel entities are stored in a dictionary cache keyed by
+        their ID.
     """
     # Initial variables defined
     processed_channels, channels_to_process = set(), deque(initial_channels)
     processed_channel_ids = set()  # Track processed channels by ID
     iteration_results, iteration_durations, mention_counter = [], [], {}
     total_messages_processed, channel_counts = 0, []
+
+    # Cache for forwarded channel entities to avoid repeated get_entity calls
+    forwarded_channel_cache: dict[int, Channel] = {}
 
     # Set up URL file if needed
     url_file = None
@@ -120,7 +128,8 @@ async def process_channels(
                     try:
                         channel_message_count = 0
 
-                        async for message in client.iter_messages(channel):
+                        # Use the previously fetched channel_entity to avoid redundant API calls
+                        async for message in client.iter_messages(channel_entity):
                             if Config.DEBUG and total_messages_processed % 100 == 0:
                                 logger.debug("Processing message %d...", total_messages_processed)
 
@@ -146,8 +155,12 @@ async def process_channels(
 
                                     if mention_counter[fwd_from_id_str] >= min_mentions:
                                         try:
-                                            # Get the forwarding channel's entity, name, and username
-                                            fwd_from_entity = await client.get_entity(fwd_from)
+                                            # Retrieve forwarding channel entity from cache or fetch if missing
+                                            fwd_from_entity = forwarded_channel_cache.get(fwd_from_id)
+                                            if fwd_from_entity is None:
+                                                fwd_from_entity = await client.get_entity(fwd_from)
+                                                forwarded_channel_cache[fwd_from_id] = fwd_from_entity
+
                                             fwd_from_name = getattr(fwd_from_entity, 'title', 'Unknown')
                                             fwd_from_username = getattr(fwd_from_entity, 'username', 'Unknown')
 
