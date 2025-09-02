@@ -1,6 +1,14 @@
 from merge_csv_data import merge_csv_files
 from EdgeList import create_edge_list
-from utils import *
+from utils import (
+    attempt_connection_to_telegram,
+    create_network_visualization_guide,
+    final_message,
+    help,
+    intro,
+    printC,
+    retrieve_api_details,
+)
 from config import Config
 from recommendations import get_channel_recommendations, process_urls
 
@@ -12,7 +20,11 @@ import asyncio
 import logging
 import os
 import csv
+
+import time
+
 from typing import Any
+
 
 # Set up logging
 logging.basicConfig(
