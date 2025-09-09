@@ -28,7 +28,7 @@ def check_env_file() -> bool:
     if not os.path.exists(env_path):
         logger.error("Error: %s file not found!", env_path)
         logger.error("Please create a .env file with your Telegram API credentials.")
-        logger.error("Run the main.py script to automatically create one or manually copy example.env to .env")
+        logger.error("Run the main.py script to automatically create one or manually copy example_config.env to .env")
         return False
 
     # Load environment variables from .env

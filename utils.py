@@ -178,13 +178,13 @@ def retrieve_api_details() -> tuple[str, str]:
     """
     # Check if .env file exists
     env_file_path = '.env'
-    example_env_path = 'example.env'
+    example_env_path = 'example_config.env'
 
     if not os.path.exists(env_file_path):
-        # No .env file, check if example.env exists
+        # No .env file, check if example_config.env exists
         if os.path.exists(example_env_path):
-            logger.info("Creating .env file from example.env template")
-            # Copy example.env to .env
+            logger.info("Creating .env file from example_config.env template")
+            # Copy example_config.env to .env
             shutil.copy2(example_env_path, env_file_path)
         else:
             # Create a basic .env file
