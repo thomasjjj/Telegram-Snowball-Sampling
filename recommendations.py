@@ -1,8 +1,8 @@
-from telethon.tl.functions.channels import GetChannelRecommendationsRequest
-from telethon.errors import FloodWaitError
+import logging
 import asyncio
 import re
-import logging
+from telethon.errors import FloodWaitError
+from telethon.tl.functions.channels import GetChannelRecommendationsRequest
 from typing import Any
 
 from EdgeList import create_edge_list
