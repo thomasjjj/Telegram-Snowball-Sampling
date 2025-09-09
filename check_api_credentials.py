@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Telegram API Credentials Checker
+Check and validate Telegram API credentials defined in a .env file.
 
-This script checks if your Telegram API credentials are correctly set up in the .env file.
-It will attempt to load the credentials, display their values, and optionally test a connection
-to the Telegram API.
+The script loads the credentials, reports their presence and format, and can optionally
+test a connection to the Telegram API.
 """
 
 import os
-import sys
 import asyncio
 from dotenv import load_dotenv
 import logging
