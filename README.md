@@ -66,8 +66,9 @@ telegram-snowball-sampling/
 ```
 
 ## Requirements
-- Python 3.6 or higher
+- Python 3.10 or higher
 - Telethon library
+- NetworkX and Matplotlib libraries for analysis and visualization
 - A registered Telegram application (for API credentials)
 - All dependencies listed in requirements.txt
 
