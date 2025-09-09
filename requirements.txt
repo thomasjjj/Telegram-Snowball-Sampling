@@ -12,3 +12,4 @@ Telethon==1.33.1
 tzdata==2024.1
 tqdm==4.66.1
 networkx==3.2.1  # For network analysis
+matplotlib==3.8.4
