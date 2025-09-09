@@ -7,10 +7,9 @@ from EdgeList import create_edge_list
 
 
 def test_create_edge_list_writes_header_and_appends(tmp_path: Path) -> None:
-    folder = tmp_path / 'edges'
+    path = tmp_path / 'edges' / 'edges.csv'
     create_edge_list(
-        folder_name=str(folder),
-        file_name='edges.csv',
+        path,
         from_channel_id=1,
         from_channel_name='A',
         from_channel_username='a',
@@ -21,8 +20,7 @@ def test_create_edge_list_writes_header_and_appends(tmp_path: Path) -> None:
         weight=1,
     )
     create_edge_list(
-        folder_name=str(folder),
-        file_name='edges.csv',
+        path,
         from_channel_id=3,
         from_channel_name='C',
         from_channel_username='c',
@@ -33,7 +31,7 @@ def test_create_edge_list_writes_header_and_appends(tmp_path: Path) -> None:
         weight=2,
     )
 
-    with (folder / 'edges.csv').open(newline='', encoding='utf-8') as file:
+    with path.open(newline='', encoding='utf-8') as file:
         reader = list(csv.reader(file))
 
     assert reader[0] == [
