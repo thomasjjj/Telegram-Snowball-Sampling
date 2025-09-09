@@ -8,8 +8,19 @@ python-dotenv==1.0.0
 pytz==2024.1
 rsa==4.9
 six==1.16.0
+colorama==0.4.6
+numpy==1.26.4
+pandas==2.2.0
+pyaes==1.6.1
+pyasn1==0.5.1
+python-dateutil==2.8.2
+python-dotenv==1.0.0
+pytz==2024.1
+rsa==4.9
+six==1.16.0
 Telethon==1.33.1
 tzdata==2024.1
 tqdm==4.66.1
 networkx==3.2.1  # For network analysis
+matplotlib==3.8.4
 matplotlib==3.8.2  # For visualization
