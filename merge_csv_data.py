@@ -1,8 +1,8 @@
-import os
-import pandas as pd
 import csv
 import logging
+import os
 
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
