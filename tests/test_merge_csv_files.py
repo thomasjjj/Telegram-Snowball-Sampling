@@ -32,7 +32,6 @@ def test_merge_csv_files_deduplicates(tmp_path: Path) -> None:
         str(results_dir),
         str(merged_dir),
         'merged_channels.csv',
-        '',
     )
 
     with (merged_dir / 'merged_channels.csv').open(newline='', encoding='utf-8') as file:

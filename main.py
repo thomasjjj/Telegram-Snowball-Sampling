@@ -4,9 +4,9 @@ from utils import (
     attempt_connection_to_telegram,
     create_network_visualization_guide,
     final_message,
-    help,
     intro,
     printC,
+    print_help,
     retrieve_api_details,
 )
 from config import Config

@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Telegram API Credentials Checker
+Check and validate Telegram API credentials defined in a .env file.
 
-This script checks if your Telegram API credentials are correctly set up in the .env file.
-It will attempt to load the credentials, display their values, and optionally test a connection
-to the Telegram API.
+The script loads the credentials, reports their presence and format, and can optionally
+test a connection to the Telegram API.
 """
 
 import os
-import sys
 import asyncio
 from dotenv import load_dotenv
 import logging
@@ -28,7 +26,7 @@ def check_env_file() -> bool:
     if not os.path.exists(env_path):
         logger.error("Error: %s file not found!", env_path)
         logger.error("Please create a .env file with your Telegram API credentials.")
-        logger.error("Run the main.py script to automatically create one or manually copy example.env to .env")
+        logger.error("Run the main.py script to automatically create one or manually copy example_config.env to .env")
         return False
 
     # Load environment variables from .env
