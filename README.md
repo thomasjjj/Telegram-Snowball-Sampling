@@ -50,8 +50,8 @@ The Telegram Snowball Sampling Tool can take several days to complete its run du
 telegram-snowball-sampling/
 ├── config.py                 # Configuration manager
 ├── EdgeList.py               # Handles edge list creation
-├── example.env               # Template environment variables
-├── .env                      # Your environment variables (created from example.env)
+├── example_config.env        # Template environment variables
+├── .env                      # Your environment variables (created from example_config.env)
 ├── main.py                   # Main application script
 ├── merge_csv_data.py         # CSV merging utility
 ├── network_analysis.py       # Network analysis script
@@ -66,8 +66,9 @@ telegram-snowball-sampling/
 ```
 
 ## Requirements
-- Python 3.6 or higher
+- Python 3.10 or higher
 - Telethon library
+- NetworkX and Matplotlib libraries for analysis and visualization
 - A registered Telegram application (for API credentials)
 - All dependencies listed in requirements.txt
 
