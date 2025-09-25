@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from EdgeList import create_edge_list
+from telegram_snowball_sampling.edge_list import create_edge_list
 
 
 def test_create_edge_list_writes_header_and_appends(tmp_path: Path) -> None:

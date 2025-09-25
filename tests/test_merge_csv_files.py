@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from merge_csv_data import merge_csv_files
+from telegram_snowball_sampling.merge_csv_data import merge_csv_files
 
 
 def write_csv(path: Path, rows: list[list[str]]) -> None:

@@ -1,12 +1,13 @@
 import logging
 import asyncio
 import re
-from telethon.errors import FloodWaitError
-from telethon.tl.functions.channels import GetChannelRecommendationsRequest
 from typing import Any
 
-from EdgeList import create_edge_list
-from config import Config
+from telethon.errors import FloodWaitError
+from telethon.tl.functions.channels import GetChannelRecommendationsRequest
+
+from .config import Config
+from .edge_list import create_edge_list
 
 logger = logging.getLogger(__name__)
 

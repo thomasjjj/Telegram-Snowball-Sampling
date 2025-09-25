@@ -1,6 +1,23 @@
-from merge_csv_data import merge_csv_files
-from EdgeList import create_edge_list
-from utils import (
+import asyncio
+import csv
+import datetime
+import logging
+import os
+import time
+from collections import deque
+from typing import Any
+
+from telethon.errors.rpcerrorlist import ChannelPrivateError
+from telethon.tl.types import Channel, PeerChannel
+
+from telegram_snowball_sampling.config import Config
+from telegram_snowball_sampling.edge_list import create_edge_list
+from telegram_snowball_sampling.merge_csv_data import merge_csv_files
+from telegram_snowball_sampling.recommendations import (
+    get_channel_recommendations,
+    process_urls,
+)
+from telegram_snowball_sampling.utils import (
     attempt_connection_to_telegram,
     create_network_visualization_guide,
     final_message,
@@ -9,21 +26,6 @@ from utils import (
     print_help,
     retrieve_api_details,
 )
-from config import Config
-from recommendations import get_channel_recommendations, process_urls
-
-from telethon.errors.rpcerrorlist import ChannelPrivateError
-from telethon.tl.types import Channel, User, PeerChannel
-from collections import deque
-import datetime
-import asyncio
-import logging
-import os
-import csv
-
-import time
-
-from typing import Any
 
 
 # Set up logging

@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import TextIO, Union
 
-from config import Config
+from .config import Config
 
 # Set up logging
 logger = logging.getLogger(__name__)
