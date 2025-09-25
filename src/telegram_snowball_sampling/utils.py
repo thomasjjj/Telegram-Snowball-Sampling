@@ -1,15 +1,16 @@
-from telethon import TelegramClient
-from colorama import Style, Fore
-from config import Config
-
-import os
-import json
 import csv
-import re
-import time
+import json
 import logging
+import os
+import re
 import shutil
+import time
 from typing import Any
+
+from colorama import Fore, Style
+from telethon import TelegramClient
+
+from .config import Config
 
 # Set up logging
 logger = logging.getLogger(__name__)

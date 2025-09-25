@@ -30,7 +30,7 @@ python -m py_compile $(git ls-files '*.py')
 ## Repository Structure
 
 - `main.py` orchestrates the snowball sampling process.
-- `EdgeList.py` and `utils.py` provide helper functions.
+- `src/telegram_snowball_sampling/edge_list.py` and `src/telegram_snowball_sampling/utils.py` provide helper functions.
 - Place new modules in logically named files and update relevant imports.
 
 ## Documentation

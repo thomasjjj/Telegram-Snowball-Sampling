@@ -48,17 +48,20 @@ The Telegram Snowball Sampling Tool can take several days to complete its run du
 ## Project Structure
 ```
 telegram-snowball-sampling/
-├── config.py                 # Configuration manager
-├── EdgeList.py               # Handles edge list creation
+├── src/
+│   └── telegram_snowball_sampling/
+│       ├── __init__.py       # Package exports
+│       ├── config.py         # Configuration manager
+│       ├── edge_list.py      # Handles edge list creation
+│       ├── merge_csv_data.py # CSV merging utility
+│       ├── recommendations.py # Channel recommendations module
+│       └── utils.py          # Utility functions
 ├── example_config.env        # Template environment variables
 ├── .env                      # Your environment variables (created from example_config.env)
 ├── main.py                   # Main application script
-├── merge_csv_data.py         # CSV merging utility
 ├── network_analysis.py       # Network analysis script
-├── recommendations.py        # Channel recommendations module
 ├── README.md                 # Project documentation
 ├── requirements.txt          # Python dependencies
-├── utils.py                  # Utility functions
 ├── EdgeList/                 # Created during execution - edge list files
 ├── merged/                   # Created during execution - merged results
 ├── network_analysis/         # Created during analysis - network metrics

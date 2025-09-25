@@ -1,6 +1,5 @@
-import os
-from dotenv import load_dotenv
 import logging
+import os
 
 # Set up logging
 logging.basicConfig(
@@ -8,6 +7,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # pragma: no cover - fallback for optional dependency
+    def load_dotenv(*_args, **_kwargs) -> None:
+        """Gracefully handle missing python-dotenv dependency."""
+
+        logger.warning(
+            "python-dotenv is not installed; skipping automatic loading of .env files."
+        )
 
 
 # Configuration variables with defaults

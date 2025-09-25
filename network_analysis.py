@@ -8,13 +8,15 @@ and generates summary statistics about the network.
 
 import os
 import csv
-import networkx as nx
-import matplotlib.pyplot as plt
-import pandas as pd
 import argparse
 import logging
-from config import Config
 from typing import Any
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import pandas as pd
+
+from telegram_snowball_sampling.config import Config
 
 # Set up logging
 logging.basicConfig(
